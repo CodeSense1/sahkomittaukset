@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import csv
 
+REPO = "https://github.com/pyyttoni/sahkomittaukset.git"
+
 
 def readData(file):
     with open(file, newline="") as file:
