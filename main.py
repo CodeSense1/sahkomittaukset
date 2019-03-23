@@ -55,6 +55,7 @@ def trendline(X, Y):
 def main():
     FILE = 'jannite.csv'
 
+    fig, axs = plt.subplots(2, 1, constrained_layout=True)
     # Get data
     for n, measures in enumerate(readData(FILE)):
 
@@ -63,41 +64,40 @@ def main():
         # Oikeajännite, pieni R
         if n == 1:
             # initialize subplots
-            plt.figure(1)
 
             x = np.linspace(3, 5.5, 100)
             slope, intercept = trendline(mA, V)
 
-            plt.scatter(mA, V)
-            plt.plot(x, slope * x + intercept)
+            axs[0].scatter(mA, V)
+            axs[0].plot(x, slope * x + intercept)
 
         # Oikeavirta, pieni R
         if n == 2:
             x = np.linspace(3, 5.5, 100)
             slope, intercept = trendline(mA, V)
 
-            plt.scatter(mA, V)
-            plt.plot(x, slope * x + intercept)
-            plt.legend(["Oikeajannite, pieni resistanssi", "Oikeajannite, trendline", "Oikeavirta, pieni resistanssi", "Oikeavirta, trendline"])
-            plt.show()
+            axs[0].scatter(mA, V)
+            axs[0].plot(x, slope * x + intercept)
+            axs[0].legend(["Oikeajannite, pieni resistanssi", "Oikeajannite, trendline", "Oikeavirta, pieni resistanssi", "Oikeavirta, trendline"])
+
+            fig.suptitle("Vastuksen resistanssit")
 
         # Oikeajännite, suuri R
         if n == 3:
-            plt.figure(2)
             x = np.linspace(15, 30, 100)
             slope, intercept = trendline(mA, V)
-            plt.subplot(122)
-            plt.scatter(mA, V)
-            plt.plot(x, slope * x + intercept)
+            axs[1].scatter(mA, V)
+            axs[1].plot(x, slope * x + intercept)
 
         # Oikeavirta, suuri R
         if n == 4:
             x = np.linspace(15, 30, 100)
             slope, intercept = trendline(mA, V)
 
-            plt.scatter(mA, V)
-            plt.plot(x, slope * x + intercept)
-            plt.legend(["Oikeajannite, suuri resistanssi", "Oikeajannite, sovite", "Oikeavirta, suuri resistanssi", "Oikeavirta, sovite"])
+            axs[1].scatter(mA, V)
+            axs[1].plot(x, slope * x + intercept)
+            axs[1].legend(["Oikeajannite, suuri resistanssi", "Oikeajannite, sovite", "Oikeavirta, suuri resistanssi", "Oikeavirta, sovite"])
+
             plt.show()
 
 
