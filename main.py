@@ -3,6 +3,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import csv
 
+""" Lataa noi kaikki kirjastot, jos niit ei viel oo
+    jos oot asettanu pythonin PATH-variableen niin pip install matplotlib asentaa sen sun koneelle, sama toimii muillekkin
+    csv-kirjasto on pythonin oma, nii sitä ei tarvi asentaa.
+"""
 
 def readData(file):
     with open(file, newline="") as file:
