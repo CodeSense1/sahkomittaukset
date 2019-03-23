@@ -3,11 +3,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import csv
 
-""" Lataa noi kaikki kirjastot, jos niit ei viel oo
-    jos oot asettanu pythonin PATH-variableen niin pip install matplotlib asentaa sen sun koneelle, sama toimii muillekkin
-    csv-kirjasto on pythonin oma, nii sitä ei tarvi asentaa.
-"""
-
 
 def readData(file):
     with open(file, newline="") as file:
@@ -59,8 +54,6 @@ def trendline(X, Y):
 
 def main():
     FILE = 'jannite.csv'
-    # initialize subplots
-    plt.figure(1)
 
     # Get data
     for n, measures in enumerate(readData(FILE)):
@@ -69,6 +62,9 @@ def main():
 
         # Oikeajännite, pieni R
         if n == 1:
+            # initialize subplots
+            plt.figure(1)
+
             x = np.linspace(3, 5.5, 100)
             slope, intercept = trendline(mA, V)
 
@@ -84,6 +80,7 @@ def main():
             plt.plot(x, slope * x + intercept)
             plt.legend(["Oikeajannite, pieni resistanssi", "Oikeajannite, trendline", "Oikeavirta, pieni resistanssi", "Oikeavirta, trendline"])
             plt.show()
+
         # Oikeajännite, suuri R
         if n == 3:
             plt.figure(2)
@@ -100,7 +97,7 @@ def main():
 
             plt.scatter(mA, V)
             plt.plot(x, slope * x + intercept)
-            plt.legend(["Oikeajannite, suuri resistanssi", "Oikeajannite, trendline", "Oikeavirta, suuri resistanssi", "Oikeavirta, trendline"])
+            plt.legend(["Oikeajannite, suuri resistanssi", "Oikeajannite, sovite", "Oikeavirta, suuri resistanssi", "Oikeavirta, sovite"])
             plt.show()
 
 
