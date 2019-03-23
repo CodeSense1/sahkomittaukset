@@ -8,6 +8,7 @@ import csv
     csv-kirjasto on pythonin oma, nii sitä ei tarvi asentaa.
 """
 
+
 def readData(file):
     with open(file, newline="") as file:
         reader = csv.reader(file, delimiter=';', dialect='excel')
@@ -44,7 +45,7 @@ def transform(data):
 
 
 def trendline(X, Y):
-    """ 
+    """
     Returns estimated intercept and slope
     :param data: 2d list
     :return intercept, slope
@@ -58,6 +59,9 @@ def trendline(X, Y):
 
 def main():
     FILE = 'jannite.csv'
+    # initialize subplots
+    plt.figure(1)
+
     # Get data
     for n, measures in enumerate(readData(FILE)):
 
@@ -78,18 +82,26 @@ def main():
 
             plt.scatter(mA, V)
             plt.plot(x, slope * x + intercept)
-
             plt.legend(["Oikeajannite, pieni resistanssi", "Oikeajannite, trendline", "Oikeavirta, pieni resistanssi", "Oikeavirta, trendline"])
             plt.show()
         # Oikeajännite, suuri R
         if n == 3:
-            print("Oikeajännite, suuri R")
+            plt.figure(2)
+            x = np.linspace(15, 30, 100)
+            slope, intercept = trendline(mA, V)
+            plt.subplot(122)
+            plt.scatter(mA, V)
+            plt.plot(x, slope * x + intercept)
 
         # Oikeavirta, suuri R
         if n == 4:
-            print("Oikeavirta, sR")
+            x = np.linspace(15, 30, 100)
+            slope, intercept = trendline(mA, V)
 
-    plt.show()
+            plt.scatter(mA, V)
+            plt.plot(x, slope * x + intercept)
+            plt.legend(["Oikeajannite, suuri resistanssi", "Oikeajannite, trendline", "Oikeavirta, suuri resistanssi", "Oikeavirta, trendline"])
+            plt.show()
 
 
 main()
