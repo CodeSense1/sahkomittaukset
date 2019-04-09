@@ -1,10 +1,21 @@
+
+
 import scipy.stats as sp
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 import numpy as np
 import csv
 
-REPO = "https://github.com/pyyttoni/sahkomittaukset.git"
+
+FILE = "data.csv"
+RA1 = 0.308 / 0.015
+RA2 = 0.264 / 0.005
+
+print(RA1)
+
+
+RV1 = 5000
+RV2 = 50000
 
 
 def readData(file):
@@ -55,99 +66,150 @@ def trendline(X, Y):
     return slope, intercept
 
 
-def func(x, a, b, c):
-    return a * np.exp(-b * x) + c
+def fixVoltage(mA, V):
+    """ Fix the current drop on oikeavirtakykentä"""
+
+    rv = []
+    for a, v in zip(mA, V):
+        rv.append(v - RA2 * a * 0.001)
+    return rv
 
 
-def exponentialTrendline(X, Y):
-    """
-    Returns estimated coefficients for exponential graph
-    :param X,Y: list of values
-    :return coefficients for exponential curve
-    """
+def fixCurrent(mA, V):
+    """ Fix the votage drop on oikeajännitekytkentä """
+    rv = []
+    for a, v in zip(mA, V):
+        rv.append(a - v / (RV1 * 0.001))
 
-    popt, pcov = curve_fit(func, X, Y)
-    # This function may not work because the values are quite small
-    # and they are close to their max dtype (float64 or float32)
-    # In this case warning can be ignored
-
-    return popt
+    return rv
 
 
-def main():
-    FILE = 'jannite.csv'
-    LAMPPU = "hehkulamppu.csv"
 
-    # First draw two graphs, oikeajännite ja oikeavirta
+# Total of measures on small resistance
+srI = [0]
+srV = [0]
 
-    fig, axs = plt.subplots(2, 1, constrained_layout=True)
-    # Get data
-    for n, measures in enumerate(readData(FILE)):
+# Total measures on large resistance
+slI = [0, 0, 0]
+slV = [0, 0, 0]
 
-        mA, V = transform(measures)
+# Pieni resistanssi, oikeajännite
+srOjV = []
+srOjI = []
 
-        # Oikeajännite, pieni R
-        if n == 1:
-            # initialize subplots
+# Pieni resistanssi, oikeavirta
+srOvV = []
+srOvI = []
 
-            x = np.linspace(3, 5.5, 100)
-            slope, intercept = trendline(mA, V)
+# Suuri resistanssi, oikeajännite
+brOjV = []
+brOjI = []
 
-            axs[0].scatter(mA, V)
-            axs[0].plot(x, slope * x + intercept)
-
-        # Oikeavirta, pieni R
-        if n == 2:
-            x = np.linspace(3, 5.5, 100)
-            slope, intercept = trendline(mA, V)
-
-            axs[0].scatter(mA, V)
-            axs[0].plot(x, slope * x + intercept)
-            axs[0].legend(["Oikeajannite, pieni resistanssi", "Oikeajannite, trendline", "Oikeavirta, pieni resistanssi", "Oikeavirta, trendline"])
-
-            fig.suptitle("Vastuksen resistanssit")
-
-        # Oikeajännite, suuri R
-        if n == 3:
-            x = np.linspace(15, 30, 100)
-            slope, intercept = trendline(mA, V)
-            axs[1].scatter(mA, V)
-            axs[1].plot(x, slope * x + intercept)
-
-        # Oikeavirta, suuri R
-        if n == 4:
-            x = np.linspace(15, 30, 100)
-            slope, intercept = trendline(mA, V)
-
-            axs[1].scatter(mA, V)
-            axs[1].plot(x, slope * x + intercept)
-            axs[1].legend(["Oikeajannite, suuri resistanssi", "Oikeajannite, sovite", "Oikeavirta, suuri resistanssi", "Oikeavirta, sovite"])
-
-            plt.show()
-
-    # Get lamp-data
-    fig2, axs2 = plt.subplots(1, 2, constrained_layout=True)
-    for n, measurements in enumerate(readData(LAMPPU)):
-
-        mA, V = transform(measurements)
-        if n == 1:
-
-            # Oikeajännite
-            x = np.linspace(0, 21, 100)
-            popt = exponentialTrendline(mA, V)
-            print(popt)
-            axs2[0].scatter(mA, V)
-            axs2[0].plot(x, func(x, *popt), "b-")
-
-        if n == 2:
-            # Oikeavirta
-            popt = exponentialTrendline(mA, V)
-            axs2[1].scatter(mA, V)
-            axs2[1].plot(x, func(x, *popt), 'r-')
-
-            plt.show()
-
-        # Draw the lamp graphs
+# Suuri resistanssi, oikeavirta
+brOvV = []
+brOvI = []
 
 
-main()
+for n, measures in enumerate(readData(FILE)):
+
+    mA, V = transform(measures)
+
+    # Oikeajännite, pieni R
+    if n == 1:
+
+        # Miksi vitussa nämä on väärinpäin?!?!?!
+        srOjV = V
+        srOjI = mA
+
+        srI += mA
+        srV += V
+
+        plt.xlabel("Virta (mA)")
+        plt.ylabel("Jännite (V)")
+        # initialize subplots
+
+        x = np.linspace(0.5, 5.5, 100)
+        slope, intercept = trendline(mA, V)
+        plt.ylim(0, 8.5)
+        plt.xlim(0, 5.5)
+
+        plt.scatter(mA, V, marker="x")
+        plt.plot(x, slope * x + intercept)
+
+    # Oikeavirta, pieni R
+    if n == 2:
+
+        srOvV = V
+        srOvI = mA
+
+        srI += mA
+        srV += V
+        x = np.linspace(0.5, 5.5, 100)
+        slope, intercept = trendline(mA, V)
+
+        plt.scatter(mA, V, marker="o")
+        plt.plot(x, slope * x + intercept, "-.")
+
+        # Draw the trendline
+
+        a, b = trendline(srI, srV)
+        plt.plot(x, a * x + b, "--")
+
+        plt.legend(["Oikeajännitesovite", "Oikeavirtasovite", "Sovite", "Oikeajännite", "Oikeavirta"])
+
+        plt.show()
+
+    # Oikeajännite, suuri R
+    if n == 3:
+
+        brOjV = V
+        brOjI = mA
+
+        slI += mA
+        slV += V
+
+        plt.xlabel("Virta (mA)")
+        plt.ylabel("Jännite (V)")
+
+        x = np.linspace(0, 30, 100)
+
+        # calculating trendline
+        slope, intercept = trendline(mA, V)
+
+        # Drawing first scatter
+        plt.scatter(mA, V, marker="x")
+
+        # drawing it's trendline
+        plt.plot(x, slope * x + intercept, "-.")
+
+    # Oikeavirta, suuri R
+    if n == 4:
+
+        brOvV = V
+        brOvI = mA
+
+        slI += mA
+        slV += V
+
+        ovV = mA
+        ovI = V
+
+        x = np.linspace(0, 30, 100)
+        slope, intercept = trendline(mA, V)
+
+        plt.scatter(mA, V, marker="o")
+        plt.plot(x, slope * x + intercept)
+
+        # Draw the trendline
+        a, b = trendline(slI, slV)
+        plt.plot(x, a * x + b, "--")
+
+        plt.legend(["Oikeajännitesovite", "Oikeavirtasovite", "Sovite", "Oikeajännite", "Oikeavirta"])
+
+        plt.show()
+
+
+# Now just fix the numbers, make new figures and thats it
+
+
+print(5 / 5000)
